@@ -3,11 +3,6 @@ import json
 import textract
 
 def parse_company_regulations(text):
-    """
-    전체 텍스트에서 챕터와 조(Article)를 추출하고, 각 조의 블록 내에서
-    첫 번째 ") "를 기준으로 제목과 내용을 분리한 후,
-    content 항목에서 \n 문자를 모두 제거합니다.
-    """
     results = []
 
     # 챕터 패턴: "제1장", "제2장" 등
@@ -21,7 +16,7 @@ def parse_company_regulations(text):
         chapter_end = chapter_positions[idx + 1][0] if idx + 1 < len(chapter_positions) else len(text)
         chapter_text = text[chapter_start:chapter_end]
 
-        # "제"와 "조("를 기준으로 조의 시작점을 찾아 분리합니다.
+        # "제"와 "조("를 기준으로 조의 시작점을 찾아 분리
         article_pattern = re.compile(r'(제\d+조\()')
         article_matches = list(article_pattern.finditer(chapter_text))
 
@@ -33,11 +28,13 @@ def parse_company_regulations(text):
 
             for i in range(len(article_matches)):
                 article_block = chapter_text[article_starts[i]:article_starts[i+1]].strip()
-                # 첫 번째 ") "를 기준으로 분리
+                # 첫 번째 ") + 공백" 을 기준으로 분리
                 split_index = article_block.find(") ")
                 if split_index != -1:
-                    title = article_block[:split_index+1].strip()   # ") "의 ")"까지 포함
-                    content = article_block[split_index+2:].strip()   # ") " 이후의 내용
+                    # ") "의 ")"까지 포함
+                    title = article_block[:split_index+1].strip()  
+                    # ") " 이후의 내용
+                    content = article_block[split_index+2:].strip()   
                 else:
                     title = article_block
                     content = ""
